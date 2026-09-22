@@ -27,7 +27,7 @@ async function criarTabela() {
         CREATE TABLE IF NOT EXISTS clientes (
         id SERIAL PRIMARY KEY,
         nome VARCHAR(100) NOT NULL,
-        cpf VARCHAR(11) NOT NULL,
+        cpf VARCHAR(11) NOT NULL
         )
     `);
 
