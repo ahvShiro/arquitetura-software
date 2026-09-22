@@ -24,6 +24,55 @@ app.get("/clientes", async (req, res) => {
 });
 
 
+app.post("/clientes", async (req, res) => {
+  const { nome, sobrenome, email, telefone } = req.body;
+
+  if (!nome || nome === undefined) {
+    return res.status(400).json({
+      erro: "Nome é obrigatório",
+    });
+  }
+
+  if (!sobrenome || sobrenome === undefined) {
+    return res.status(400).json({
+      erro: "Sobrenome é obrigatório",
+    });
+  }
+
+  if (!email || email === undefined) {
+    return res.status(400).json({
+      erro: "Email é obrigatório",
+    });
+  }
+
+  const emailCountQuery = await db.query(
+    `SELECT COUNT(id) FROM clientes WHERE email = $1`,
+    [email],
+  );
+
+  if (parseInt(emailCountQuery.rows[0].count, 10) >= 1) {
+    return res.status(409).json({
+      erro: "Email já cadastrado",
+    });
+  }
+
+  try {
+    const resultado = await db.query(
+      `INSERT INTO clientes (nome, sobrenome, email, telefone)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [nome, sobrenome, email, telefone],
+    );
+
+    res.status(201).json(resultado.rows[0]);
+
+  } catch (erro) {
+    res.status(500).json({
+      erro: "Erro ao criar cliente",
+    });
+  }
+});
+
 async function criarTabela() {
   await db.query(`
         CREATE TABLE IF NOT EXISTS clientes (
